@@ -1,0 +1,93 @@
+﻿@page "/adclass"
+@using BlazorLinq.Data;
+@using BlazorLinq.Model;
+@inject AppDbContext _db
+<h3>AddClass</h3>
+
+<EditForm Model="@cl" OnValidSubmit="@ValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label for="name">Name:</label>
+    <InputText id="name" @bind-Value="cl.name" class="form-control" />
+    <br />
+    <label for="roomNo">Room No:</label>
+    <InputNumber id="roomNo" @bind-Value="cl.roomNo" class="form-control" />
+    <br />
+    <label for="fid">Select Teacher:</label>
+    <InputSelect @bind-Value="cl.faculty" class="form-control">
+        <option value="">Select...</option>
+        @foreach (var item in _db.Faculti.ToList())
+        {
+            <option value="@item.fid">@item.fname</option>
+        }
+    </InputSelect>
+    <br />
+    <label for="student">Select Student:</label>
+    <InputSelect @bind-Value="cl.students" class="form-control">
+        <option value="">Select...</option>
+        @foreach (var item in _db.studen.ToList())
+        {
+            <option value="@item.sid">@item.sname</option>
+        }
+    </InputSelect>
+    <br />
+    <button type="submit">Save</button>
+</EditForm>
+
+<table>
+    <tbody>
+        @foreach (var currentClass in clss)
+        {
+            <tr>
+                <td>@currentClass.name</td>
+                <td>@currentClass.roomNo</td>
+                <td>@currentClass.faculty</td>
+                <td>@currentClass.students</td>
+                <td><button @onclick="() => EditClass(currentClass)">Edit</button></td>
+                <td><button @onclick="() => DeleteClass(currentClass)">Delete</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    Class cl = new Class();
+    List<Class> clss = new List<Class>();
+
+    protected override void OnInitialized()
+    {
+        LoadClasses();
+    }
+
+    void LoadClasses()
+    {
+        clss = _db.Cla.ToList();
+    }
+
+    void ValidSubmit()
+    {
+        if (cl.cid == 0)
+        {
+            _db.Add(cl);
+        }
+        else
+        {
+            _db.Update(cl);
+        }
+
+        _db.SaveChanges();
+        cl = new Class();
+        LoadClasses();     }
+
+    void EditClass(Class currentClass)
+    {
+        cl = currentClass;
+    }
+
+    void DeleteClass(Class currentClass)
+    {
+        _db.Remove(currentClass);
+        _db.SaveChanges();
+        LoadClasses(); 
+    }
+}

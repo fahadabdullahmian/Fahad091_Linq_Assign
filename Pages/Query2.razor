@@ -1,0 +1,54 @@
+﻿@page "/query2"
+@using BlazorLinq.Data;
+@using BlazorLinq.Model;
+@inject AppDbContext _db
+<h3>Query1</h3>
+
+<table>
+    <tbody>
+        @foreach (var item in students)
+        {
+        <td>@item.sid</td>
+        <td>@item.major</td>
+        }
+    </tbody>
+</table>
+
+@code {
+    List<Student> students = new List<Student>();
+
+    protected override void OnInitialized()
+    {
+        LoadQuery();
+    }
+
+    void LoadQuery()
+    {
+        students = (from s in _db.studen
+                where s.enrolls.All(c => c.classes.Count != 0)
+                select new Student
+                    {
+                        sid = s.sid,
+                        major = s.major
+                    }
+                   ).ToList();
+    }
+}
+
+
+
+
+
+<style>
+    
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+</style>

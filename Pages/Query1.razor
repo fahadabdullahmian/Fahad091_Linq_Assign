@@ -1,0 +1,36 @@
+﻿@page "/query1"
+@using BlazorLinq.Data;
+@using BlazorLinq.Model;
+@inject AppDbContext _db
+<h3>Query1</h3>
+
+<table>
+    <tbody>
+        @foreach (var item in clss)
+        {
+            <td>@item.name</td>
+            <td>@item.roomNo</td>
+        }
+    </tbody>
+</table>
+
+@code {
+        List<Class> clss = new List<Class>();
+
+    protected override void OnInitialized()
+    {
+        LoadQuery();
+    }
+
+    void LoadQuery()
+    {
+        clss = (from c in _db.Cla 
+                where c.students.Count > 100
+                select new Class
+                {
+                name = c.name,
+                roomNo = c.roomNo
+                }
+               ).ToList();
+    }
+}

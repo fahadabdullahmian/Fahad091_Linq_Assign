@@ -1,0 +1,88 @@
+﻿@page "/enrollement"
+@using BlazorLinq.Data;
+@using BlazorLinq.Model;
+@inject AppDbContext _db
+
+<h3>Enroll</h3>
+
+<EditForm Model="@enroll" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label for="student">Select Student:</label>
+    <InputSelect @bind-Value="enroll.students" class="form-control">
+        <option value="">Select...</option>
+        @foreach (var i in _db.studen.ToList())
+        {
+            <option value="@i.sid">@i.sname</option>
+        }
+    </InputSelect>
+    <br />
+    <label for="class">Select Class:</label>
+    <InputSelect @bind-Value="enroll.classes" class="form-control">
+        <option value="">Select...</option>
+        @foreach (var i in _db.Cla.ToList())
+        {
+            <option value="@i.cid">@i.name</option>
+        }
+    </InputSelect>
+    <br />
+    <button type="submit">Save</button>
+</EditForm>
+
+<table>
+    <tbody>
+        @foreach (var currentEnroll in enrolls)
+        {
+            <tr>
+                <td>@currentEnroll.students</td>
+                <td>@currentEnroll.classes</td>
+                <td><button @onclick="() => EditEnroll(currentEnroll)">Edit</button></td>
+                <br/>
+                <td><button @onclick="() => DeleteEnroll(currentEnroll)">Delete</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    Enrolled enroll = new Enrolled();
+    List<Enrolled> enrolls = new List<Enrolled>();
+
+    protected override void OnInitialized()
+    {
+        LoadEnroll();
+    }
+
+    void LoadEnroll()
+    {
+        enrolls = _db.Enrolled.ToList();
+    }
+
+    void HandleSubmit()
+    {
+        if (enroll.eid == 0)
+        {
+            _db.Add(enroll);
+        }
+        else
+        {
+            _db.Update(enroll);
+        }
+
+        _db.SaveChanges();
+        enroll = new Enrolled(); 
+        LoadEnroll(); 
+    }
+
+    void EditEnroll(Enrolled currentEnroll)
+    {
+        enroll = currentEnroll;
+    }
+
+    void DeleteEnroll(Enrolled currentEnroll)
+    {
+        _db.Remove(currentEnroll);
+        _db.SaveChanges();
+        LoadEnroll(); 
+    }
+}

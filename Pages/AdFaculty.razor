@@ -1,0 +1,91 @@
+﻿@page "/adfaculty"
+@using BlazorLinq.Data;
+@using BlazorLinq.Model;
+@inject AppDbContext _db
+<h3>AddFaculty</h3>
+
+<EditForm Model="@faculty" OnValidSubmit="@ValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label for="name">Name:</label>
+    <InputText id="name" @bind-Value="faculty.fname" class="form-control" />
+    <br />
+    <label for="depid">DepId:</label>
+    <InputNumber id="depid" @bind-Value="faculty.depid" class="form-control" />
+    <br />
+    <label for="standing">Standing:</label>
+    <InputText id="standing" @bind-Value="faculty.standing" class="form-control" />
+    <br />
+   
+    <br />
+    <label for="class">Select Class:</label>
+    <InputSelect @bind-Value="faculty.classes" class="form-control">
+        <option value="">Select...</option>
+        @foreach (var item in _db.Cla.ToList())
+        {
+            <option value="@item.cid">@item.name</option>
+        }
+    </InputSelect>
+    <br />
+    <button type="submit">Save</button>
+</EditForm>
+
+<table>
+    <tbody>
+        @foreach (var currentFaculty in Faculties)
+        {
+            <tr>
+                <td>@currentFaculty.fname</td>
+                <td>@currentFaculty.depid</td>
+                <td>@currentFaculty.standing</td>
+                <td>@currentFaculty.enroll</td>
+                <td>@currentFaculty.classes</td>
+                <td><button @onclick="() => EditFaculty(currentFaculty)">Edit</button></td>
+                <td><button @onclick="() => DeleteFaculty(currentFaculty)">Delete</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    Faculty faculty = new Faculty();
+    List<Faculty> Faculties = new List<Faculty>();
+
+    protected override void OnInitialized()
+    {
+        LoadFaculties();
+    }
+
+    void LoadFaculties()
+    {
+        Faculties = _db.Faculti.ToList();
+    }
+
+    void ValidSubmit()
+    {
+        if (faculty.fid == 0)
+        {
+            _db.Add(faculty);
+        }
+        else
+        {
+            _db.Update(faculty);
+        }
+
+        _db.SaveChanges();
+        faculty = new Faculty();
+        LoadFaculties();
+    }
+
+    void EditFaculty(Faculty currentFaculty)
+    {
+        faculty = currentFaculty;
+    }
+
+    void DeleteFaculty(Faculty currentFaculty)
+    {
+        _db.Remove(currentFaculty);
+        _db.SaveChanges();
+        LoadFaculties(); 
+    }
+}
